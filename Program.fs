@@ -6,10 +6,6 @@ open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
 
-
-let setFileBody (path : string) = 
-    path |> IO.File.ReadAllBytes |> setBody 
-
 let webApp = 
     choose [
         Page.setFromFolder "index"
@@ -37,7 +33,7 @@ let main args =
                 
     0 
 
-
+// Note on .NET hosting
 // IHost is the common ground for using built-in .NET configuration, DI (services), logging, and other things.
 // Above we build an IHost through the WebApplicationBuilder : IHostApplicationBuilder (**)
 // The Build() builds a WebApplication, which implements
