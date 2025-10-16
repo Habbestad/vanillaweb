@@ -8,26 +8,26 @@ open Giraffe
 
 let webApp = 
     choose [
-        Page.setFromFolder "index"
+        Page.setPageFromFolder "index"
         route "/" >=> redirectTo true "index"
         
-        Page.setFromFolder "page1"
+        Page.setPageFromFolder "page1"
     ]
-
-let builder = WebApplication.CreateBuilder()
-let app = builder.Build()
-
-app.UseGiraffe webApp
 
 
 [<EntryPoint>]
 let main args =
-    let builder = WebApplication.CreateBuilder()
+    //let webAppOptions = WebApplicationOptions ( WebRootPath = "public" )
+    let builder = WebApplication.CreateBuilder () //webAppOptions
+
     builder.Services.AddGiraffe()
     |> ignore
 
     let app = builder.Build()
+    // app.MapStaticAssets () |> ignore
     app.UseGiraffe webApp
+
+    printfn "%A" app.Environment.WebRootPath
 
     app.Run()
                 

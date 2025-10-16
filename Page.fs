@@ -9,35 +9,31 @@ module Utils =
     let (|JS|_|) = endsWith ".js"
     let (|HTML|_|) = endsWith ".html"
 
-    let setContentHeader path =
+    let setContentHeader filePath =
         let contentType = setHttpHeader "Content-Type"
-        match path with
+        match filePath with
         | CSS -> contentType "text/css"
         | JS -> contentType "text/javascript"
         | HTML -> contentType "text/html"
         | _ -> fun next ctx -> next ctx
 
-    let fileHandler path =   
-        let handler (url : string) = 
-            if url.StartsWith "/" then route url else route ("/" + url)
-            >=> (IO.File.ReadAllBytes >> setBody) path 
-            >=> setContentHeader path
-
-        match path with
-        | HTML -> choose [
-            handler (IO.Directory.GetParent path).Name
-            handler path
-            ]
-        | _ -> handler path
-    
-
 open Utils    
-let setFromFolder folderPath = 
-    let handlers = 
-        folderPath |> IO.Directory.GetFiles
-                   |> Array.map fileHandler
-                   |> Array.toList
+let setPageFromFolder folderPath =
+    let fileHandler filePath =   
+        let url = 
+            "/" +  match filePath with 
+                    | HTML -> (IO.Directory.GetParent filePath).Name
+                    | _ -> filePath
 
-    choose handlers
+        route url
+        >=> (IO.File.ReadAllBytes >> setBody) filePath 
+        >=> setContentHeader filePath
+
+    "pages/" + folderPath 
+    |> IO.Directory.GetFiles
+    |> Array.map fileHandler
+    |> Array.toList
+    |> choose
+
     
 
